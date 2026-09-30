@@ -674,36 +674,37 @@ jobs:
       - name: Checkout Code
         uses: actions/checkout@v4
 
-      - name: Set up JDK 17
+      - name: Set up Java 21
         uses: actions/setup-java@v4
         with:
           distribution: 'temurin'
-          java-version: '17'
-          cache: 'gradle'
+          java-version: '21'
 
-      - name: Prepare Secrets Configuration
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v4
+
+      - name: Prepare Secrets and Keystore
         run: |
           if [ ! -f .env ]; then
             cp .env.example .env
           fi
-
-      - name: Make Gradle Executable
-        run: |
-          if [ -f gradlew ]; then
-            chmod +x gradlew
-          else
-            gradle wrapper
-            chmod +x gradlew
+          if [ -n "${'$'}{{ secrets.GEMINI_API_KEY }}" ]; then
+            echo "GEMINI_API_KEY=${'$'}{{ secrets.GEMINI_API_KEY }}" > .env
           fi
+          if [ ! -f debug.keystore ] && [ -f debug.keystore.base64 ]; then
+            base64 -d debug.keystore.base64 > debug.keystore
+          fi
+          chmod +x gradlew
 
       - name: Build Debug APK
-        run: ./gradlew assembleDebug --stacktrace --no-daemon
+        run: ./gradlew assembleDebug --stacktrace
 
       - name: Upload Debug APK Artifact
         uses: actions/upload-artifact@v4
         with:
           name: VoxDub-AI-Video-Dubber-Debug-APK
           path: app/build/outputs/apk/debug/*.apk
+          if-no-files-found: error
           retention-days: 14
     """.trimIndent()
 }
