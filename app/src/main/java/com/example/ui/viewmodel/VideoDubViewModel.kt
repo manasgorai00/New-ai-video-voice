@@ -30,6 +30,7 @@ class VideoDubViewModel(application: Application) : AndroidViewModel(application
     private val repository: VideoDubRepository
     val ttsManager: TtsDubbingManager
     val mixerController: AudioMixerController
+    val apiKeyManager: com.example.data.ApiKeyManager = com.example.data.ApiKeyManager.getInstance(application)
 
     val allProjects: StateFlow<List<VideoProject>>
 
@@ -276,6 +277,16 @@ class VideoDubViewModel(application: Application) : AndroidViewModel(application
 
     fun toggleFullscreen() {
         _isFullscreen.value = !_isFullscreen.value
+    }
+
+    fun saveApiKey(key: String) {
+        apiKeyManager.saveApiKey(key)
+        _userMessage.value = if (key.isNotBlank()) "API key updated successfully!" else "Custom API key cleared."
+    }
+
+    fun clearApiKey() {
+        apiKeyManager.clearApiKey()
+        _userMessage.value = "Custom API key reset."
     }
 
     fun clearUserMessage() {

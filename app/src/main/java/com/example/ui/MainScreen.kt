@@ -1,6 +1,7 @@
 package com.example.ui
 
 import androidx.activity.compose.BackHandler
+import kotlinx.coroutines.launch
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.WindowInsets
@@ -72,6 +73,7 @@ fun MainScreen(viewModel: VideoDubViewModel) {
     val voiceCount by viewModel.ttsManager.availableVoiceCount.collectAsStateWithLifecycle()
 
     val snackbarHostState = remember { SnackbarHostState() }
+    val scope = androidx.compose.runtime.rememberCoroutineScope()
 
     // Dialog states
     var showImportDialog by remember { mutableStateOf(false) }
@@ -283,9 +285,15 @@ fun MainScreen(viewModel: VideoDubViewModel) {
                         cues = currentCues,
                         engineStatus = engineStatus,
                         availableVoiceCount = voiceCount,
+                        apiKeyManager = viewModel.apiKeyManager,
+                        onSaveApiKey = { key -> viewModel.saveApiKey(key) },
+                        onClearApiKey = { viewModel.clearApiKey() },
                         onShowMessage = { msg ->
-                            viewModel.clearUserMessage()
-                            // show directly via snackbar
+                            kotlinx.coroutines.CoroutineScope(scope.coroutineContext).let {
+                                scope.launch {
+                                    snackbarHostState.showSnackbar(msg)
+                                }
+                            }
                         }
                     )
                 }
