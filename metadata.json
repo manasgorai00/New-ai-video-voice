@@ -1,0 +1,6 @@
+{
+  "name": "VoxDub AI - Video Dubber",
+  "description": "AI Video Dubbing studio with automated subtitle extraction, realistic human TTS voice dubbing, audio mixing, and multi-language translation.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
